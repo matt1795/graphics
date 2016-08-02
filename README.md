@@ -77,19 +77,19 @@ In these examples, `stdout` is used as the file being written to. This can be an
 
 Before drawing any frames, call `write_y4m_header`:
 
-```
+```c
 write_y4m_header(img, stdout);
 ```
 
 When you're ready to output a frame:
 
-```
+```c
 write_y4m_frame(img, stdout);
 ```
 
 If you've used `stdout` as your output file, you can pipe the program's output directly to a `.avi` file and play with any video player or into `avconv` to compress the video:
 
-```
+```c
 ./my_graphics_program > hello.avi
 mpv hello.avi
 ```
