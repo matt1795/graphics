@@ -16,7 +16,7 @@ struct image *new_image(
     int w,                  /* width */
     int h                   /* height */
 ) {
-    struct image* img = malloc(sizeof(struct image));
+    struct image* img = (struct image *)malloc(sizeof(struct image));
 
     img->w = w;
     img->h = h;
