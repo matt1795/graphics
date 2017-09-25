@@ -10,33 +10,32 @@
 #include <iostream>
 #include <string>
 #include "graphics.h"
-#include "color.hpp"
 
 class Image
 {
-    struct image;
+    struct image *img;
 
 public:
     // ctor
     Image(int w, int h);
 
     // fill image with color
-    void fill(Color& c);
+    void fill(struct color c);
 
     // set color of pixel
-    void set_pixel(int x, int y, Color& c);
+    void set_pixel(int x, int y, struct color c);
 
     // get color of a pixel
-    Color& get_pixel(int x, int y);
+    struct color *get_pixel(int x, int y);
 
     // draw line between points
-    void draw_line(int x0, int y0, int x1, int y1, Color& c);
+    void draw_line(int x0, int y0, int x1, int y1, struct color c);
 
     // draw a circle
-    void draw_circle(int x, int y, int r, Color& c);
+    void draw_circle(int x, int y, int r, struct color c);
 
     // save image to bitmap file
-    void save(std::string filename);
+    int save(std::string filename);
 
     // Write YUV4MPEG2 header
     void write_y4m_header(FILE *output);

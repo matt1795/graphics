@@ -16,7 +16,7 @@ class Turtle
 
 public:
     //ctor
-    Turtle(int x, int y, float a, Image& img, Color& c);
+    Turtle(int x, int y, float a, Image& img, struct color c);
 
     // Move turtle, optionally drawing line
     void move(float d, int pd);
