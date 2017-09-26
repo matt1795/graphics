@@ -50,5 +50,6 @@ int Image::save(std::string filename)
 // dtor
 Image::~Image()
 {
-    free_image(img);
+    if (img)
+	free_image(img);
 }

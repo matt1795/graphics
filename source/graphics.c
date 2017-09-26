@@ -1,20 +1,21 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <string.h>
 #include "graphics.h"
 
-/* YCbCr conversion constants from RGB. You can find more information at
-   https://en.wikipedia.org/wiki/YCbCr. */
+// YCbCr conversion constants from RGB. You can find more information at 
+// https://en.wikipedia.org/wiki/YCbCr.
 static const float ycbcr[3][3] = {
     {0.257, 0.504, 0.098},
     {-0.148, -0.291, 0.439},
     {0.439, -0.368, -0.071}
 };
 
-/* Creates a new image. */
+// Creates a new image.
 struct image *new_image(
-    int w,                  /* width */
-    int h                   /* height */
+    int w,				// width
+    int h				// height
 ) {
     struct image* img = (struct image *)malloc(sizeof(struct image));
 
@@ -25,7 +26,32 @@ struct image *new_image(
     return img;
 }
 
-/* Fill an image with a color. */
+// Open binary PPM
+struct image *open_bin_ppm(const char *filename)
+{
+    FILE* input = fopen(filename, "r");
+
+    if (!input)
+	return NULL;
+
+    char type[3];
+    fgets(type, 3, input);
+    
+    if (!strcmp(type, "P6\n"))
+	return NULL;
+
+    int max, h, w;
+
+    fscanf(input, "%d %d\n%d\n", &w, &h, &max);
+
+    struct image *img = new_image(w, h);
+    int i = fread(img->b, sizeof(struct color), w*h, input);
+    fclose(input);
+
+    return img;
+}
+
+// Fill an image with a color.
 void fill_image(
     struct image *img,
     struct color c
@@ -35,7 +61,7 @@ void fill_image(
         img->b[i] = c;
 }
 
-/* Set a single pixel to a color. */
+// Set a single pixel to a color.
 void set_pixel(
     struct image *img,
     struct color c,
@@ -48,19 +74,19 @@ void set_pixel(
     *b = c;
 }
 
-/* Get the color of a single pixel. */
+// Get the color of a single pixel.
 struct color *get_pixel(
     struct image *img,
     int x,
     int y
 ) {
-    /* Check if the pixel is in the image first. */
+    // Check if the pixel is in the image first.
     if (x >= img->w || x < 0)
         return NULL;
     if (y >= img->h || y < 0)
         return NULL;
 
-    /* Find the pixel in the image. */
+    // Find the pixel in the image.
     struct color *b = img->b;
     b += y * img->w;
     b += x;
@@ -68,7 +94,7 @@ struct color *get_pixel(
     return b;
 }
 
-/* Draw a straight line between two points. */
+// Draw a straight line between two points.
 void set_line(
     struct image *img,
     struct color c,
@@ -77,7 +103,7 @@ void set_line(
     int x1,
     int y1
 ) {
-    /* Bresenham's line algorithm */
+    // Bresenham's line algorithm
     int dx = abs(x1 - x0), sx = x0 < x1 ? 1 : -1;
     int dy = -abs(y1 - y0), sy = y0 < y1 ? 1 : -1;
     int err = dx + dy, e2;
@@ -97,7 +123,7 @@ void set_line(
     }
 }
 
-/* Draw a circle. */
+// Draw a circle.
 void set_circle(
     struct image *img,
     struct color c,
@@ -105,7 +131,7 @@ void set_circle(
     int y0,
     int r
 ) {
-    /* Midpoint circle algorithm */
+    // Midpoint circle algorithm
     int x = -r, y = 0, err = 2 - 2 * r;
 
     do {
@@ -121,8 +147,8 @@ void set_circle(
     } while (x < 0);
 }
 
-/* Save an image to a file in the Netpbm format. */
-int save_image(             /* returns 0 on success, -1 on failure */
+// Save an image to a file in the Netpbm format.
+int save_image(				// returns 0 on success, -1 on failure
     struct image *img,
     const char* filename
 ) {
@@ -138,7 +164,7 @@ int save_image(             /* returns 0 on success, -1 on failure */
     return 0;
 }
 
-/* Write the YUV4MPEG2 header. */
+// Write the YUV4MPEG2 header.
 void write_y4m_header(
     struct image *img,
     FILE* output
@@ -149,7 +175,7 @@ void write_y4m_header(
     fprintf(output, "C444\n");
 }
 
-/* Write a YUV4MPEG2 frame. */
+// Write a YUV4MPEG2 frame.
 void write_y4m_frame(
     struct image* img,
     FILE* output
@@ -199,7 +225,7 @@ void write_y4m_frame(
     }
 }
 
-/* Free an image. */
+// Free an image.
 void free_image(
     struct image *img
 ) {

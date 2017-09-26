@@ -17,4 +17,12 @@ int main(void)
     testImg.drawCircle(25, 25, 20, white);
 
     testImg.save("testImage.ppm");
+
+    // test opening file
+    struct image *img = open_bin_ppm("testImage.ppm");
+    set_line(img, white, 50, 0, 0, 50);
+    save_image(img, "textImage2.ppm");
+
+    if (img)
+	free_image(img);
 }
