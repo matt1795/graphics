@@ -11,31 +11,32 @@ struct color {
 };
 
 struct image {
-    int w;
-    int h;
-    struct color* b;
+    int w;				// image width
+    int h;				// image height
+    size_t p;				// size of pixel
+    void *b;				// image buffer
 };
 
 // Creates a new image.
-struct image *new_image(int w, int h);
+struct image *new_image(char type, int w, int h);
 
-// Opens Binary PPM image
-struct image *open_bin_ppm(const char *filename);
+// Open PPM or PGM from file
+struct image *open_file(const char* filename);
 
 // Fill an image with a color.
-void fill_image(struct image *img, struct color c);
+void fill_image(struct image *img, void *c);
 
 // Set a single pixel to a color.
-void set_pixel(struct image *img, struct color c, int x, int y);
+void set_pixel(struct image *img, void *c, int x, int y);
 
 // Get the color of a single pixel.
-struct color *get_pixel(struct image *img, int x, int y);
+void *get_pixel(struct image *img, int x, int y);
 
 // Draw a straight line between two points.
-void set_line(struct image *img, struct color c, int x0, int y0, int x1, int y1);
+void set_line(struct image *img, void *c, int x0, int y0, int x1, int y1);
 
 // Draw a circle.
-void set_circle(struct image *img, struct color c, int x0, int y0, int r);
+void set_circle(struct image *img, void *c, int x0, int y0, int r);
 
 // Save an image to a file in the Netpbm format.
 int save_image(struct image *img, const char* filename);

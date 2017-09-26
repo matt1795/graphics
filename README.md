@@ -1,5 +1,5 @@
-# graphics
-Simple C graphics library for drawing images, turtle graphics and outputting video.
+# "supercharged" graphics library
+Simple C graphics library with C++ wrapper for drawing images, turtle graphics and outputting video.
 
 ## Usage (still images and turtle graphics)
 Example program to draw a tree using turtle graphics:
@@ -63,7 +63,7 @@ int main(
 }
 ```
 
-To compile (assuming you've named the source code above turtle_test.c):
+To compile (assuming you've named the sourc code above turtle_test.c):
 
 ```
 cc turtle_test.c graphics.c turtle.c -lm -o turtle_test

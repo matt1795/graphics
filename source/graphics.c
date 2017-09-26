@@ -14,39 +14,53 @@ static const float ycbcr[3][3] = {
 
 // Creates a new image.
 struct image *new_image(
+    char type,				// Image type
     int w,				// width
     int h				// height
 ) {
+    
     struct image* img = (struct image *)malloc(sizeof(struct image));
+    
+    // Make sure type is valid
+    if (type == 'p')
+	img->p = sizeof(struct color);
+    else if (type == 'g')
+	img->p = sizeof(uint8_t);
+    else
+	return NULL;
+    
 
     img->w = w;
     img->h = h;
-    img->b = (struct color *)malloc(w * h * sizeof(struct color));
+    img->b = malloc(w * h * img->p);
 
     return img;
 }
 
-// Open binary PPM
-struct image *open_bin_ppm(const char *filename)
+// Open PPM or PGM file
+struct image *open_file(const char* filename)
 {
     FILE* input = fopen(filename, "r");
 
     if (!input)
 	return NULL;
 
-    char type[3];
-    fgets(type, 3, input);
+    char type_str[3], type;
+    int max, h, w;
     
-    if (!strcmp(type, "P6\n"))
+    fgets(type_str, 3, input);
+    fscanf(input, "%d %d\n%d\n", &w, &h, &max);
+    
+    if (!strcmp(type, "P6"))
+	type = 'p';
+    else if (!strcmp(type, "P5"))
+	type = 'g';
+    else
 	return NULL;
 
-    int max, h, w;
-
-    fscanf(input, "%d %d\n%d\n", &w, &h, &max);
-
-    struct image *img = new_image(w, h);
-    int i = fread(img->b, sizeof(struct color), w*h, input);
-    fclose(input);
+    struct image *img = new_image(type, w, h);
+    fread(img->b, img->p, w*h, input);
+    fclose(input)i;
 
     return img;
 }
@@ -54,28 +68,30 @@ struct image *open_bin_ppm(const char *filename)
 // Fill an image with a color.
 void fill_image(
     struct image *img,
-    struct color c
+    void *c
 ) {
     int i;
     for (i = 0; i < img->w * img->h; i++)
-        img->b[i] = c;
+	memcpy(img->b + i*img->p, c, img->p);
 }
 
 // Set a single pixel to a color.
 void set_pixel(
     struct image *img,
-    struct color c,
+    void *c,
     int x,
     int y
 ) {
-    struct color *b = get_pixel(img, x, y);
+    void *b = get_pixel(img, x, y);
+    
     if (!b)
         return;
-    *b = c;
+    
+    memcpy(b, c, img->p);
 }
 
 // Get the color of a single pixel.
-struct color *get_pixel(
+void *get_pixel(
     struct image *img,
     int x,
     int y
@@ -87,9 +103,9 @@ struct color *get_pixel(
         return NULL;
 
     // Find the pixel in the image.
-    struct color *b = img->b;
-    b += y * img->w;
-    b += x;
+    void *b = img->b;
+    b += img->p * img->w * y;
+    b += img->p * x;
 
     return b;
 }
@@ -97,7 +113,7 @@ struct color *get_pixel(
 // Draw a straight line between two points.
 void set_line(
     struct image *img,
-    struct color c,
+    void *c,
     int x0,
     int y0,
     int x1,
@@ -126,7 +142,7 @@ void set_line(
 // Draw a circle.
 void set_circle(
     struct image *img,
-    struct color c,
+    void *c,
     int x0,
     int y0,
     int r
@@ -153,12 +169,21 @@ int save_image(				// returns 0 on success, -1 on failure
     const char* filename
 ) {
     FILE* output = fopen(filename, "w");
+    char[3] type;
 
     if (!output)
         return -1;
 
-    fprintf(output, "P6\n%d %d\n255\n", img->w, img->h);
-    fwrite(img->b, sizeof(struct color), img->w * img->h, output);
+    if (img->p == sizeof(struct color))
+	type = "P6";
+    else if (img->p == sizeof(uint8_t))
+	type = "P5";
+    else
+	return -2;
+    
+    
+    fprintf(output, "%s\n%d %d\n255\n", type, img->w, img->h);
+    fwrite(img->b, img->p, img->w * img->h, output);
     fclose(output);
 
     return 0;
