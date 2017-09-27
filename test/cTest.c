@@ -46,8 +46,12 @@ int main(void)
     struct image *lena = open_file("lena.ppm");
     assert(lena != NULL);
     assert(lena->b != NULL);
-
     
+    assert(convert(lena, 'd') != 0);
+    assert(convert(lena, 'p') == 0);
+    assert(convert(lena, 'g') == 0);
+    assert(save_image(lena, "lena_grey.pgm") == 0);
+
     free_image(color_image);
     free_image(grey_image);
     free_image(lena);

@@ -38,6 +38,9 @@ void set_line(struct image *img, void *c, int x0, int y0, int x1, int y1);
 // Draw a circle.
 void set_circle(struct image *img, void *c, int x0, int y0, int r);
 
+// convert between rgb and greyscale
+int convert(struct image *img, char type);
+
 // Write PPM/PGM file to a stream
 int write_to_stream(struct image *img, FILE* stream);
 

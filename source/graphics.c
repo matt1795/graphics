@@ -163,6 +163,50 @@ void set_circle(
     } while (x < 0);
 }
 
+// convert between rgb and greyscale
+int convert(struct image *img, char type)
+{
+    // process arguments
+    char old_type;
+    if (img->p == sizeof(struct color))
+	old_type = 'p';
+    else if (img->p == sizeof(uint8_t))
+	old_type = 'g';
+    else
+	return -1;
+
+    // No need to convert when...
+    if (old_type == type)
+	return 0;
+
+    struct image *n_img = new_image(type, img->w, img->h);
+    int i;
+
+    if (type == 'g') {
+	struct color *b = (struct color*)img->b;
+	for (i = 0; i < img->w*img->h; i++) {
+	    *(uint8_t*)(n_img->b + i) =	(b + i)->r*0.299 +
+					(b + i)->g*0.587 +
+					(b + i)->b*0.114;
+	}
+    }
+    else if (type == 'p'){
+	for (i = 0; i < img->w*img->h; i++)
+	    memset(n_img + i*n_img->p, *(uint8_t*)(img->b + i), n_img->p);
+    }
+    else {
+	return -1;
+    }
+
+    // transfer
+    free(img->b);
+    img->b = n_img->b;
+    img->p = n_img->p;
+
+    return 0;
+}
+
+
 // write image file to stream
 int write_to_stream(struct image *img, FILE* stream)
 {
