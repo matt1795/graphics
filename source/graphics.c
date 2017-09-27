@@ -163,27 +163,35 @@ void set_circle(
     } while (x < 0);
 }
 
-// Save an image to a file in the Netpbm format.
-int save_image(				// returns 0 on success, -1 on failure
-    struct image *img,
-    const char* filename
-) {
-    FILE* output = fopen(filename, "w");
+// write image file to stream
+int write_to_stream(struct image *img, FILE* stream)
+{
     char[3] type;
-
-    if (!output)
-        return -1;
 
     if (img->p == sizeof(struct color))
 	type = "P6";
     else if (img->p == sizeof(uint8_t))
 	type = "P5";
     else
-	return -2;
-    
-    
+	return -1;
+        
     fprintf(output, "%s\n%d %d\n255\n", type, img->w, img->h);
     fwrite(img->b, img->p, img->w * img->h, output);
+    
+    return 0;
+}
+
+// Save an image to a file in the Netpbm format.
+int save_image(				// returns 0 on success, -1 on failure
+    struct image *img,
+    const char* filename
+) {
+    FILE* output = fopen(filename, "w");
+    
+    if (!output)
+        return -1;
+
+    write_to_stream(img, output);
     fclose(output);
 
     return 0;

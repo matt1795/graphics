@@ -38,6 +38,9 @@ void set_line(struct image *img, void *c, int x0, int y0, int x1, int y1);
 // Draw a circle.
 void set_circle(struct image *img, void *c, int x0, int y0, int r);
 
+// Write PPM/PGM file to a stream
+in write_to_stream(struct image *img, FILE* stream);
+
 // Save an image to a file in the Netpbm format.
 int save_image(struct image *img, const char* filename);
 
