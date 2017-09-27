@@ -51,16 +51,16 @@ struct image *open_file(const char* filename)
     fgets(type_str, 3, input);
     fscanf(input, "%d %d\n%d\n", &w, &h, &max);
     
-    if (!strcmp(type, "P6"))
+    if (!strcmp(type_str, "P6"))
 	type = 'p';
-    else if (!strcmp(type, "P5"))
+    else if (!strcmp(type_str, "P5"))
 	type = 'g';
     else
 	return NULL;
 
     struct image *img = new_image(type, w, h);
     fread(img->b, img->p, w*h, input);
-    fclose(input)i;
+    fclose(input);
 
     return img;
 }
@@ -166,17 +166,17 @@ void set_circle(
 // write image file to stream
 int write_to_stream(struct image *img, FILE* stream)
 {
-    char[3] type;
+    char type[3];
 
     if (img->p == sizeof(struct color))
-	type = "P6";
+	strncpy(type, "P6", sizeof(type));
     else if (img->p == sizeof(uint8_t))
-	type = "P5";
+	strncpy(type, "P5", sizeof(type));
     else
 	return -1;
         
-    fprintf(output, "%s\n%d %d\n255\n", type, img->w, img->h);
-    fwrite(img->b, img->p, img->w * img->h, output);
+    fprintf(stream, "%s\n%d %d\n255\n", type, img->w, img->h);
+    fwrite(img->b, img->p, img->w * img->h, stream);
     
     return 0;
 }
@@ -217,11 +217,12 @@ void write_y4m_frame(
     float r, g, b;
 
     fprintf(output, "FRAME\n");
+    struct color *buf = (struct color*)img->b;
 
     for (i = 0; i < img->w * img->h; i++) {
-        r = img->b[i].r;
-        g = img->b[i].g;
-        b = img->b[i].b;
+        r = buf[i].r;
+        g = buf[i].g;
+        b = buf[i].b;
 
         y = 16;
         y += (uint8_t)(ycbcr[0][0] * r + 0.5);
@@ -232,9 +233,9 @@ void write_y4m_frame(
     }
 
     for (i = 0; i < img->w * img->h; i++) {
-        r = img->b[i].r;
-        g = img->b[i].g;
-        b = img->b[i].b;
+        r = buf[i].r;
+        g = buf[i].g;
+        b = buf[i].b;
 
         cb = 128;
         cb += (uint8_t)(ycbcr[1][0] * r + 0.5);
@@ -245,9 +246,9 @@ void write_y4m_frame(
     }
 
     for (i = 0; i < img->w * img->h; i++) {
-        r = img->b[i].r;
-        g = img->b[i].g;
-        b = img->b[i].b;
+        r = buf[i].r;
+        g = buf[i].g;
+        b = buf[i].b;
 
         cr = 128;
         cr += (uint8_t)(ycbcr[2][0] * r + 0.5);
