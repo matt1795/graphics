@@ -1,95 +1,46 @@
 # "supercharged" graphics library
-Simple C graphics library with C++ wrapper for drawing images, turtle graphics and outputting video.
 
-## Usage (still images and turtle graphics)
-Example program to draw a tree using turtle graphics:
-```c
-#include <stdio.h>
-#include <math.h>
-#include "graphics.h"
-#include "turtle.h"
+Simple C graphics library with C++ wrapper for drawing images, turtle graphics
+and outputting video.
 
-#define WIDTH 500
-#define HEIGHT 350
+I have yet to get into documentation yet, here are my additions to the old
+library so far (C):
 
-/* Recursive function to draw branches of a tree. */
-void draw_branch(
-    int i,              /* how many more branches ahead */
-    float a,            /* angle between branches */
-    struct turtle *t
-) {
-    struct turtle t2;
+- Opening of files
+- Representation of color or greyscal images
+- Converting data between color/greyscale
+- Writing to streams
 
-    /* Stop if this is the last branch. */
-    if (i == 0)
-        return;
+For efficiency's sake I use void pointers to deal with the difference in
+color/greyscale data structures. It is expected that the programmer understands
+which datatype the image is and makes acts accordingly. If a color pixel is
+written to a greyscale image it will in fact write 3 greyscale images.
 
-    /* Draw the branch. */
-    move_turtle(t, 6 * i, 1);
+Moving forward, I want to change the color representation of the image from RGB
+to YCbCr. This would not change the image buffer sizing, but it makes consecutive 
+image processing operations far more efficient.
 
-    /* Duplicate this turtle to draw one of the child branches. */
-    t2 = *t;
+The C++ wrapper only works for the original library. Once I get YCbCr goinging,
+I can flesh out an image processing library using classes. 
 
-    /* Turn the two turtles in opposite directions. */
-    turn_turtle(t, a);
-    turn_turtle(&t2, -a);
+Image processing features to add:
 
-    draw_branch(i - 1, a, t);
-    draw_branch(i - 1, a, &t2);
-}
+- Manipulation
+    - translation
+    - rotation
+    - scaling
+- Point Processing
+    - linear
+    - gamma
+    - logarithmic
+    - auto-contrast adjustment
+- Histogram Processing
+    - equalization
+    - matching
+    - local
+- Spacial Filtering
+    - high pass
+    - low pass
+    - custom
 
-int main(
-    int arg,
-    char *argv[]
-) {
-    struct image *img = new_image(WIDTH, HEIGHT);
-    struct turtle t = {
-        WIDTH / 2,
-        HEIGHT - 1,
-        0,
-        (struct color){0, 0, 0},
-        img
-    };
-
-    fill_image(img, (struct color){255, 255, 255});
-
-    turn_turtle(&t, M_PI_2);
-
-    draw_branch(10, M_PI / 6, &t);
-
-    save_image(img, "hello.ppm");
-
-    return 0;
-}
-```
-
-To compile (assuming you've named the sourc code above turtle_test.c):
-
-```
-cc turtle_test.c graphics.c turtle.c -lm -o turtle_test
-```
-
-## Usage (video output)
-
-Video output is 30 FPS.
-
-In these examples, `stdout` is used as the file being written to. This can be any C `FILE` pointer.
-
-Before drawing any frames, call `write_y4m_header`:
-
-```c
-write_y4m_header(img, stdout);
-```
-
-When you're ready to output a frame:
-
-```c
-write_y4m_frame(img, stdout);
-```
-
-If you've used `stdout` as your output file, you can pipe the program's output directly to a `.avi` file and play with any video player or into `avconv` to compress the video:
-
-```c
-./my_graphics_program > hello.avi
-mpv hello.avi
-```
+More will be added to the list as I go through my image processing course.
